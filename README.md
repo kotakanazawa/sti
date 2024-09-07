@@ -1,3 +1,45 @@
+# STIとは
+
+- モデルの継承構造をリレーショナルデータベースで表現したもの
+- ある親クラスから派生するサブクラスを共通の1つのテーブルに対応させること
+  - そのため、テーブルの各レコードがどのクラスに属するのかを識別するためのカラムが必要になる
+
+# RailsでのSTI
+
+たとえば、Animalクラスを親として、Animalsテーブルを作るとする。また、サブクラスでDog、Catクラスを作る。この場合、サブクラスの各レコードを識別するために、Animalクラスに`type`カラムを用意する。
+
+```ruby
+t.string "type"
+```
+
+そして、
+
+```ruby
+> dog = Dog.create(name: 'Taro', bark_volume: 10)
+  TRANSACTION (0.0ms)  begin transaction
+  Dog Create (1.0ms)  INSERT INTO "animals" ("name", "type", "created_at", "updated_at", "bark_volume", "claw_sharpness") VALUES (?, ?, ?, ?, ?, ?) RETURNING "id"  [["name", "Taro"], ["type", "Dog"], ["created_at", "2024-09-07 12:12:58.896898"], ["updated_at", "2024-09-07 12:12:58.896898"], ["bark_volume", 10], ["claw_sharpness", nil]]
+  TRANSACTION (0.3ms)  commit transaction
+=>
+```
+
+
+```ruby
+> dog.class
+=> Dog(id: integer, name: string, type: string, created_at: datetime, updated_at: datetime, bark_volume: integer, claw_sharpness: integer)
+```
+
+```ruby
+> Dog.superclass
+=> Animal(id: integer, name: string, type: string, created_at: datetime, updated_at: datetime, bark_volume: integer, claw_sharpness: integer)
+```
+
+```ruby
+> dog.type
+=> "Dog"
+```
+
+このように、`type`には自動でそのサブクラスの名前が登録される。これで各レコードがどのモデルに所属するのか識別する。
+
 # STIのメリット
 
 - コードの再利用性が高い
